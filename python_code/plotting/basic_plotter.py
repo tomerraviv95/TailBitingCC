@@ -95,10 +95,8 @@ if __name__ == '__main__':
     with open(CONFIG_PATH) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     methods_names = ['3-rep CVA',
-                     'LCVA',
                      'Gated WCVAE',
-                     'WCVAE',
-                     'LGVA']
+                     'WCVAE']
     snr_range = np.linspace(config['val_SNR_start'], config['val_SNR_end'], num=config['val_num_SNR'])
 
     for info_length in info_lengths:
