@@ -1,7 +1,4 @@
-import math
-
 import torch
-
 from python_code.utils.python_utils import load_pkl, save_pkl
 import datetime
 import os
@@ -40,7 +37,7 @@ run_over = False
 gating_trainer = CVATrainer(log_flag=False)
 gating_trainer.decoder.clipping_val = 0
 channel_dataset = gating_trainer.channel_dataset['val']
-neural_state_run_name = f'gated_wcvae_{gating_trainer.info_length}'
+neural_state_run_name = f'gated_wcvae'
 trainers = [GatedWCVAETrainer(run_name=None,
                               load_from_checkpoint=False,
                               info_length=gating_trainer.info_length,
@@ -85,7 +82,7 @@ def run_eval_per_state(trainer) -> np.array:
     return total_fer
 
 
-fig, ax = plt.subplots(2, 4, gridspec_kw={'hspace': 0.2, 'wspace': 0})
+fig, ax = plt.subplots(2, 1, gridspec_kw={'hspace': 0.2, 'wspace': 0})
 SUBPLOT_LOC_TO_STATES = {(0, 0): (0, 8),
                          (0, 1): (8, 16),
                          (0, 2): (16, 24),
@@ -106,28 +103,54 @@ for trainer in trainers:
         save_pkl(plots_path, total_fer)
 
     states_v = np.arange(trainer.n_states)
-    for loc, states_cover in SUBPLOT_LOC_TO_STATES.items():
-        current_ax = ax[loc[0], loc[1]]
-        current_ax.plot(states_v[states_cover[0]:states_cover[1]], total_fer.flatten()[states_cover[0]:states_cover[1]],
-                        label=trainer.get_name().split(' ')[1][:-1] + ' Decoder',
-                        color=COLORS_DICT[trainer.get_name()], linewidth=2.2,
-                        marker=MARKERS_DICT[trainer.get_name()], linestyle='-.', markersize=10)
-        current_ax.yaxis.set_ticks([])
-        current_ax.yaxis.set_visible(False)
-        current_ax.set_yscale('log')
-        current_ax.set_xlim([states_cover[0], states_cover[1] - 1])
-        current_ax.set_xticks(range(states_cover[0], states_cover[1]))
-        if loc == (0, 0) or loc == (1, 0):
-            xticks_labels = [str(int(states_cover[0])), '', '', '',
-                             str(math.ceil((states_cover[0] + states_cover[1]) / 2)), '', '',
-                             str(int(states_cover[1] - 1))]
-            current_ax.set_xticklabels(xticks_labels)
-        else:
-            xticks_labels = ['', '', '', '', str(math.ceil((states_cover[0] + states_cover[1]) / 2)), '', '',
-                             str(int(states_cover[1] - 1))]
-            current_ax.set_xticklabels(xticks_labels)
+    START, MID, END = 0, 32, 64
+    ax[0].plot(states_v[START:MID], total_fer.flatten()[START:MID],
+               label=trainer.get_name().split(' ')[1][:-1] + ' Decoder',
+               color=COLORS_DICT[trainer.get_name()], linewidth=2.2,
+               marker=MARKERS_DICT[trainer.get_name()], linestyle='-.', markersize=10)
+    ax[0].set_yscale('log')
+    ax[0].grid(which='both', ls='--')
+    xticks_labels = [str(int(START)),
+                     '', '', '',
+                     str(4),
+                     '', '', '', '', '', '', '',
+                     str(12),
+                     '', '', '', '', '', '', '',
+                     str(20),
+                     '', '', '', '', '', '', '',
+                     str(28),
+                     '', '',
+                     str(int(MID - 1))]
+    print(len(xticks_labels))
+    ax[0].set_xticklabels(xticks_labels)
+    ax[0].set_xticks(states_v[START:MID])
+    ax[0].set_xlim([START, MID - 1])
+    ax[0].set_ylabel('FER')
+
+    ax[1].plot(states_v[MID:END], total_fer.flatten()[MID:END],
+               label=trainer.get_name().split(' ')[1][:-1] + ' Decoder',
+               color=COLORS_DICT[trainer.get_name()], linewidth=2.2,
+               marker=MARKERS_DICT[trainer.get_name()], linestyle='-.', markersize=10)
+    ax[1].set_yscale('log')
+    ax[1].grid(which='both', ls='--')
+    xticks_labels = [str(int(MID)),
+                     '', '', '',
+                     str(36),
+                     '', '', '', '', '', '', '',
+                     str(44),
+                     '', '', '', '', '', '', '',
+                     str(52),
+                     '', '', '', '', '', '', '',
+                     str(60),
+                     '', '',
+                     str(int(END - 1))]
+    ax[1].set_xticklabels(xticks_labels)
+    ax[1].set_xticks(states_v[MID:END])
+    ax[1].set_xlim([MID, END - 1])
+    ax[1].set_ylabel('FER')
+
 fig.text(0.5, 0.02, 'States', ha='center')
-fig.text(0.06, 0.5, 'FER', va='center', rotation='vertical')
+# fig.text(0.06, 0.5, 'FER', va='center', rotation='vertical')
 
 current_day_time = datetime.datetime.now()
 folder_name = f'{current_day_time.month}-{current_day_time.day}-{current_day_time.hour}-{current_day_time.minute}'

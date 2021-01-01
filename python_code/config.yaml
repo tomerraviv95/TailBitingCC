@@ -1,5 +1,5 @@
 # general
-run_name: 'test'
+run_name: 'wcvae_13'
 
 # code parameters
 code_length: 87
@@ -25,7 +25,7 @@ val_minibatch_size: 3000 # the more the merrier
 val_SNR_start: -2
 val_SNR_end: 2
 val_num_SNR: 5 # how many equally spaced values
-thresh_errors: 250 # monte-carlo error threshold per point
+thresh_errors: 50 # monte-carlo error threshold per point
 
 # seed
 noise_seed: 345002
@@ -35,7 +35,7 @@ word_seed: 786002
 replications: 3
 
 # WCVAE
-decoders_in_ensemble: 8
+decoders_in_ensemble: 32
 
 # LGVA
 list_size: 8
